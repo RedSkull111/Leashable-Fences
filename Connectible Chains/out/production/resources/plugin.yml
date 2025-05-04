@@ -1,4 +1,0 @@
-name: leashable_fences
-version: '1.0-SNAPSHOT'
-main: net.maninthebag.leashableFences.LeashableFences
-api-version: '1.21'
