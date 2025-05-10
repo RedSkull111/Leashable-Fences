@@ -9,6 +9,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
+import org.bukkit.event.entity.EntityUnleashEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
@@ -33,7 +34,7 @@ class ItemClickListener(private val plugin: JavaPlugin) : Listener {
         val clicked = event.clickedBlock ?: return
 
         if (player.isSneaking) return
-        if (event.action != Action.RIGHT_CLICK_BLOCK || event.clickedBlock?.type?.name?.endsWith("_FENCE") == false) return
+        if (event.action != Action.RIGHT_CLICK_BLOCK || event.clickedBlock?.type?.name?.endsWith("_FENCE") == false && event.clickedBlock?.type?.name?.endsWith("_WALL") == false) return
         if (event.item?.type != Material.LEAD) return
 
         event.isCancelled = true
@@ -91,6 +92,14 @@ class ItemClickListener(private val plugin: JavaPlugin) : Listener {
 
             activeLeashes[hitch1.uniqueId] = bat
             activeBats[bat] = hitch1
+
+            for (itemStack in player.inventory) {
+                if (itemStack == null || itemStack.type != Material.LEAD) {
+                        continue
+                }
+                itemStack.amount = itemStack.amount - 1
+                break
+            }
         }
     }
 
@@ -99,6 +108,13 @@ class ItemClickListener(private val plugin: JavaPlugin) : Listener {
         if (event.rightClicked.type == EntityType.BAT && event.player.inventory.itemInMainHand.type != Material.LEAD) {
             activeBats[event.rightClicked]?.remove()
             event.rightClicked.remove()
+        }
+    }
+
+    @EventHandler
+    fun onLeadBreak(event: EntityUnleashEvent) {
+        if (event.entity.type == EntityType.BAT) {
+            event.isCancelled = true
         }
     }
 }
